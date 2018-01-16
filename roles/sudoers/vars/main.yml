@@ -1,0 +1,20 @@
+---
+# vars file for sodoers
+prod_sudoers:
+  - username: abc
+    nopasswd: false
+    commands:
+      - "/usr/bin"
+      - "/sbin/service hello * jboss6_cluster"
+      - "/app/tomcat/tomcat.sh *"
+      - "/app/bacula/sbin/bconsole"
+  - username: xyz
+    become:
+      - "root"
+    nopasswd: true
+    commands:
+      - "/usr/bin"
+      - "/sbin/service hello * jboss6_cluster"
+      - "/app/tomcat/tomcat.sh *"
+      - "/app/bacula/sbin/bconsole"
+

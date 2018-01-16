@@ -1,0 +1,19 @@
+---
+
+- name: Update all packages
+  yum:
+    name: '*'
+    state: latest
+
+  tags:
+    - package    
+
+
+- name: Install standard packages
+  yum:
+    name={{ item }}  state=installed
+  with_items:
+    "{{ base_packages }}"
+
+  tags:
+    - package    

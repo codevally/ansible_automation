@@ -1,0 +1,20 @@
+[localhost]
+127.0.0.1
+
+# The EC2 plugin will populate these groups, but we need to add empty entries here to make aliases for them below.
+[tag_Type_ciops]
+
+[tag_Role_ciops]
+
+[tag_Role_clients]
+
+[tag_Environment_devops]
+
+[devops:children]
+tag_Environment_devops
+
+[ciops:children]
+tag_Type_ciops
+
+[clients:children]
+tag_Role_clients

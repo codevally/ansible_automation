@@ -1,0 +1,16 @@
+---
+
+- name: Create custom fact directory
+  file:
+    path: "/etc/ansible/facts.d"
+    state: directory
+  tags:
+    - custom_fact
+
+
+- name: Insert custom fact file
+  copy:
+    src: files/system_status.fact
+    dest: /etc/ansible/facts.d/system_status.fact
+  tags:
+    - custom_fact

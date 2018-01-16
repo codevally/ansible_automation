@@ -1,0 +1,5 @@
+---
+# defaults file for rabbitmq
+
+# users home directory
+users_home: /home

@@ -1,0 +1,11 @@
+---
+
+- name: Disable sudoers requiretty
+  lineinfile:
+    regexp: 'Defaults    requiretty'
+    dest: /etc/sudoers
+    line: '#Defaults    requiretty'
+    
+  tags:
+    - configuration
+    - base

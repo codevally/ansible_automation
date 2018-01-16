@@ -1,0 +1,23 @@
+---
+# This playbook deploys the whole application stack in this site.
+
+- name: Apply user account changes
+  hosts: all
+  remote_user: centos
+  become: yes
+  become_method: sudo
+
+  vars:
+    deploy_environment: "{{ lookup('env','AWS_PROFILE') }}"
+
+  vars_prompt:
+    - name: run_base
+      prompt: "Enter the environment for this deployment (devops|test|uat|prod)?"
+      private: no
+
+  tasks:
+    - debug: var=run_base
+    - debug: var=deploy_environment
+
+  roles:
+    - { role: users, when: run_base == deploy_environment }

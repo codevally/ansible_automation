@@ -1,0 +1,4 @@
+---
+# tasks file for base
+
+- import_tasks: manage_sudoers.yml

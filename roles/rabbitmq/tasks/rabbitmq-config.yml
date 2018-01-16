@@ -1,0 +1,48 @@
+---
+# Configure RabbitMQ
+
+- name: Rabbitmq [rabbitmq-env]
+  copy:
+    src: rabbitmq-env
+    dest: /app/rabbitmq/sbin/rabbitmq-env
+    owner: "{{ rabbitmq_user }}"
+    group: "{{ rabbitmq_group }}"
+    mode: 0755
+  notify:
+    restart restart-rabbitmq
+  tags:
+    - rabbitmq
+
+- name: Rabbitmq [rabbitmq-defaults]
+  template:
+    src: rabbitmq-defaults.j2
+    dest: /app/rabbitmq/sbin/rabbitmq-defaults
+    owner: "{{ rabbitmq_user }}"
+    group: "{{ rabbitmq_group }}"
+    mode: 0755
+  notify:
+    restart restart-rabbitmq
+  tags:
+    - rabbitmq
+
+- name: RabbitMQ service startup script [rabbitmq.sh]
+  template:
+    src: rabbitmq.sh.j2
+    dest: /app/rabbitmq/rabbitmq.sh
+    owner: root
+    group: root
+    mode: 0755
+  tags:
+    - rabbitmq
+
+- name: Enable the plugins is installed
+  rabbitmq_plugin:
+    names: "{{ item }}"
+    prefix: /app/rabbitmq
+    state: enabled
+    new_only: yes
+  with_items: "{{ rabbitmq_plugins }}"
+  notify:
+    restart rabbitmq-server
+  tags:
+    - rabbitmq

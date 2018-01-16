@@ -1,0 +1,41 @@
+---
+
+- name: Verify jboss group is exists with id 503
+  group:
+    name: "{{ rabbitmq_group }}"
+    gid: "{{ rabbitmq_group_id }}"
+    state: present
+    ignore_errors: true
+
+- name: Verify jboss user is exists with id 503
+  user:
+    name: "{{ rabbitmq_user }}"
+    uid: "{{ rabbitmq_user_id }}"
+    home: "{{ default(users_home ~ '/' ~ rabbitmq_user ) }}"
+    group: "{{ rabbitmq_group }}"
+    state: present
+    ignore_errors: true
+
+- name: Add or modify nofile soft limit for the user {{ rabbitmq_user }}
+  pam_limits:
+    domain: "{{ rabbitmq_user }}"
+    limit_type: hard
+    limit_item: nofile
+    value: 500000
+
+- name: Add or modify nofile soft limit for the user {{ rabbitmq_user }}
+  pam_limits:
+    domain: "{{ rabbitmq_user }}"
+    limit_type: hard
+    limit_item: stack
+    value: 500000
+
+- name: Find {{ rabbit_mount_size }} drive for {{ rabbit_mount_path }} is attached
+  become: yes
+  shell: /bin/lsblk | /bin/grep {{ rabbit_mount_size }} | /bin/awk '{print $1}' | /usr/bin/head -n 1
+  register: result_rabbit
+
+- fail:
+    msg: "The system may not be provisioned according to the Whispir standards."
+  when:
+    - result_rabbit.stdout == ""

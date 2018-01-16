@@ -1,0 +1,47 @@
+---
+# vars file for users
+prod_users:
+  - username: abc
+    name: "ABC DEF"
+    uid: 1507
+    gid: 1507
+    group: abc
+    password: password
+    groups:
+      - wheel
+      - adm
+      - root
+    home_create: yes
+    home_mode: "0750"
+    shell: /bin/bash
+    expires: 1422403387
+    append: no
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+    ssh_key_generate: yes
+    update_password: always
+    authorized_keys_exclusive: no
+    authorized_keys:
+      - "ssh-rsa sskkeeyyyy"
+  - username: xyz
+    name: "XXX YYY"
+    uid: 1508
+    gid: 1508
+    group: xyz
+    password: password
+    groups:
+      - wheel
+      - adm
+      - root
+    home_create: yes
+    home_mode: "0750"
+    shell: /bin/bash
+    expires: 1422403387
+    append: no
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+    ssh_key_generate: yes
+    update_password: always
+    authorized_keys_exclusive: no
+    authorized_keys:
+      - "ssh-rsa sskkeeyyyy"

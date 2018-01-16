@@ -1,0 +1,84 @@
+---
+
+- name: RabbitMQ | Download the RabbitMQ binary
+  become: yes
+  get_url:
+    url: "http://www.rabbitmq.com/releases/rabbitmq-server/v{{ rabbitmq_version }}/rabbitmq-server-generic-unix-{{ rabbitmq_version }}.tar.gz"
+    dest: "/tmp/rabbitmq-server-generic-unix-{{ rabbitmq_version }}.tar.gz"
+  register: rabbitmq_downloaded
+  tags:
+    - rabbitmq
+
+- name: RabbitMQ | Unpack the compressed RabbitMQ binaries
+  become: yes
+  command: tar zxvf /tmp/rabbitmq-server-generic-unix-{{ rabbitmq_version }}.tar.gz chdir=/tmp creates=/app/rabbitmq_server-{{ rabbitmq_version }}
+  when: rabbitmq_downloaded.changed
+  tags:
+    - rabbitmq
+
+- name: RabbitMQ | Setting older permissions to {{ rabbitmq_user }}
+  become: yes
+  file:
+    path: "/app/rabbitmq_server-{{ rabbitmq_version }}"
+    owner: "{{ rabbitmq_user }}"
+    group: "{{ rabbitmq_group }}"
+    state: directory
+    recurse: yes
+  when: rabbitmq_downloaded.changed
+  tags:
+    - rabbitmq
+
+- name: RabbitMQ | Creating symlink
+  become: yes
+  file:
+    src: "/app/rabbitmq_server-{{ rabbitmq_version }}"
+    dest: "/app/rabbitmq"
+    state: link
+  when: rabbitmq_downloaded.changed
+  tags:
+    - rabbitmq
+
+- name: RabbitMQ | Creating required folders - 1
+  become: yes
+  file:
+    path: "{{ rabbit_mount_path }}"/rabbitmq-config
+    state: directory
+    mode: 0755
+  tags:
+    - rabbitmq
+
+- name: RabbitMQ | Creating required folders - 2
+  become: yes
+  file:
+    path: "{{ rabbit_mount_path }}"/rabbitmq-config/"{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - lib
+    - plugins
+  tags:
+    - rabbitmq
+
+- name: RabbitMQ | Creating required folders - 3
+  become: yes
+  file:
+    path: /var/log/rabbitmq
+    state: directory
+    mode: 0755
+  tags:
+    - rabbitmq
+
+- name: RabbitMQ | Creating required folders - 4
+  become: yes
+  file:
+    path: "{{ item }}"
+    owner: "{{ rabbitmq_user }}"
+    group: "{{ rabbitmq_group }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+  with_items:
+    - "{{ rabbit_mount_path }}"/rabbitmq-config/
+    -  /var/log/rabbitmq
+  tags:
+    - rabbitmq

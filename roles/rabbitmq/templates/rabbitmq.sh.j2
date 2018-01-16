@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# Init file for RabbitMQ
+ 
+
+case "$1" in
+  'start')
+      su - {{ rabbitmq_user }} -c "/app/rabbitmq/sbin/rabbitmq-server -detached"
+  ;;  
+  'stop')
+      su - {{ rabbitmq_user }} -c "/app/rabbitmq/sbin/rabbitmqctl stop"
+      pkill epmd
+  ;;
+  'status')
+      su - {{ rabbitmq_user }} -c "/app/rabbitmq/sbin/rabbitmqctl status"
+  ;;
+esac

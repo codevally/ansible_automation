@@ -1,0 +1,11 @@
+---
+# tasks file for rabbitmq
+
+- import_tasks: prerequisites.yml
+- import_tasks: packages.yml
+- import_tasks: erlang.yml
+- import_tasks: rabbitmq.yml
+- import_tasks: cluster-config.yml
+- import_tasks: rabbitmq-config.yml
+- import_tasks: rabbitmq-start.yml
+- import_tasks: rabbitmq-cluster.yml

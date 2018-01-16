@@ -1,0 +1,8 @@
+---
+# defaults file for sudoers
+
+# Default to an empty list
+prod_sudoers: []
+
+# Remove file from /etc/sudoers.d?
+sudoers_remove: false

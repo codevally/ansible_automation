@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+
+
+{{ item.username }}  ALL={% if item.become is defined %}({{ item.become|join(', ') }}){% else %}(ALL){% endif %}{% if item.nopasswd %} NOPASSWD: {% else %} PASSWD: {% endif %}{% if item.commands is defined %}{{ item.commands|join(', ') }}{% else %}(ALL){% endif %}
+
+

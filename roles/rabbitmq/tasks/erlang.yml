@@ -1,0 +1,83 @@
+---
+
+- name: Install require base packages
+  become: yes
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - "{{ base_packages }}"
+
+- name: Erlang | Download the erlang source
+  become: yes
+  get_url:
+    url: "http://erlang.org/download/otp_src_{{erlang_version}}.tar.gz"
+    dest: "/tmp/otp_src_{{erlang_version}}.tar.gz"
+  register: erlang_downloaded
+  tags:
+    - erlang
+
+- name: Erlang | Unpack the compressed erlang source
+  become: yes
+  command: tar zxvf /tmp/otp_src_{{erlang_version}}.tar.gz chdir=/tmp creates=/tmp/otp_src_{{erlang_version}}
+  when: erlang_downloaded.changed
+  tags:
+    - erlang
+
+- name: Erlang | Build erlang from source - Step 1 (configure)
+  become: yes
+  command: "./configure chdir=/tmp/otp_src_{{erlang_version}} --prefix=/app/erlang_{{erlang_version}}"
+  when: erlang_downloaded.changed
+  tags:
+    - erlang
+
+- name: Erlang | Build erlang from source - Step 2 (make)
+  become: yes
+  command: "make chdir=/tmp/otp_src_{{erlang_version}}"
+  when: erlang_downloaded.changed
+  tags:
+    - erlang
+
+- name: Erlang | Build erlang from source - Step 3 (make install)
+  become: yes
+  command: "make install chdir=/tmp/otp_src_{{erlang_version}}"
+  when: erlang_downloaded.changed
+  tags:
+    - erlang
+
+- name: Erlang | Creating symlink - Step 4
+  become: yes
+  file:
+    src: "/app/erlang_{{erlang_version}}"
+    dest: "/app/erlang"
+    state: link
+  tags:
+    - erlang
+
+- name: Erlang | Adding to environment variables - Step 5
+  become: yes
+  lineinfile:
+    path: /etc/profile.d/custom.sh
+    line: "export {{ erlang_path }}"
+    state: present
+  tags:
+    - erlang
+
+- name: Erlang | Adding {{ erlang_path }} to system path - Step 6
+  become: yes
+  lineinfile:
+    path: /etc/profile.d/custom.sh
+    line: "export {{ erlang_path }}"
+    backrefs: yes
+    regexp: 'PATH=(["]*)((?!.*?{{erlang_path}}).*?)(["]*)$'
+    line: "PATH=\1\2:{{erlang_path}}\3"
+    state: present
+  tags:
+    - erlang
+
+- name: Erlang | Source the environment variables - Step 7
+  become: yes
+  lineinfile:
+    shell: source /etc/profile.d/custom.sh
+  tags:
+    - erlang

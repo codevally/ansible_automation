@@ -1,0 +1,1 @@
+# create folders for individual groups and assign variables to particular group.

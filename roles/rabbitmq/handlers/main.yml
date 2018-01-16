@@ -1,0 +1,14 @@
+---
+# handlers file for rabbitmq
+
+- name: restart-rabbitmq
+  shell: /app/rabbitmq/rabbitmq.sh stop && sleep 2 && /app/rabbitmq/rabbitmq.sh start
+
+- name: stop-rabbitmq
+  shell: /app/rabbitmq/rabbitmq.sh stop
+
+- name: start-rabbitmq
+  shell: /app/rabbitmq/rabbitmq.sh start
+
+- name: rabbitmq-status
+  shell: /app/rabbitmq/rabbitmq.sh status

@@ -1,0 +1,39 @@
+---
+
+- name: Set hostname to {{ ec2_tag_Name }}
+  become: yes
+  hostname: name={{ ec2_tag_Name }}.{{ region_internal_domain }}
+  when: ec2_tag_Name is defined
+
+  tags:
+    - issue
+    - base
+
+- name: Check existance of /etc/cloud/cloud.cfg
+  become: yes
+  stat:
+    path: /etc/cloud/cloud.cfg
+  register: cloud_cfg
+
+  tags:
+    - issue
+    - base
+
+- name: AWS Preserve Hostname
+  become: yes
+  lineinfile:
+    dest: /etc/cloud/cloud.cfg
+    line: 'preserve_hostname: true'
+  when: cloud_cfg.stat.exists
+
+  tags:
+    - issue
+    - base
+
+- name: Update /etc/hostname
+  become: yes
+  shell: hostname > /etc/hostname
+
+  tags:
+    - issue
+    - base

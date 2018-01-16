@@ -1,0 +1,30 @@
+%% -*- mode: erlang -*-
+%% ----------------------------------------------------------------------------
+%% RabbitMQ Sample Configuration File.
+%%
+%% See http://www.rabbitmq.com/configure.html for details.
+%% ----------------------------------------------------------------------------
+[
+ {rabbit,
+  [%%
+   %% Clustering
+   %% =====================
+   %%
+
+   %% How to respond to cluster partitions.
+   %% See http://www.rabbitmq.com/partitions.html for further details.
+   %%
+      {cluster_partition_handling, autoheal},
+
+   %%
+   %% Resource Limits & Flow Control
+   %% ==============================
+   %%
+   %% See http://www.rabbitmq.com/memory.html for full details.
+
+   %% Memory-based Flow Control threshold.
+   %%
+      {vm_memory_high_watermark, {{ rabbitmq_memory_high_watermark }}}
+   
+  ]}
+].

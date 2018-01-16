@@ -1,0 +1,7 @@
+---
+# vars file for base
+lvm_packages: ["lvm2","xfsprogs"]
+
+base_packages: ["wget","vim","telnet","bind-utils","bzip2","psmisc"]
+
+se_packages: ["libselinux-python"]

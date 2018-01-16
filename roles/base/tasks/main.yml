@@ -1,0 +1,14 @@
+---
+# tasks file for base
+
+- import_tasks: prerequisites.yml
+- import_tasks: issue_file.yml
+- import_tasks: sshd.yml
+- import_tasks: sudoers.yml
+- import_tasks: selinux.yml
+- import_tasks: base_packages.yml
+- import_tasks: set_hostname.yml
+- import_tasks: config_misc.yml
+- import_tasks: volumes.yml
+- import_tasks: apply_changes_restart.yml
+#  when: ansible_distribution == "CentOS" and ansible_distribution_major_version > '6'

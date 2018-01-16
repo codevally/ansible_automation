@@ -1,0 +1,28 @@
+- name: Get uptime
+  command: awk -F '.' '{print $1}' /proc/uptime
+  register: current_update
+
+- name: Output uptime
+  debug: "msg='System update: {{ current_update.stdout }}'"
+
+- name: restart server
+  shell: "sleep 2; /sbin/shutdown -r now"
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when: current_update.stdout > 86400
+  become: yes
+  become_method: sudo
+
+- name: Wait for server come back
+  local_action: wait_for host={{ ansible_ssh_host }} state=started port=22 delay=120 timeout=1200 connect_timeout=15
+  become: root
+  become_method: sudo
+  when: current_update.stdout > 86400
+
+- name: Get uptime after restart
+  command: awk -F '.' '{print $1}' /proc/uptime
+  register: current_update2
+
+- name: Output uptime after restart
+  debug: "msg='System update: {{ current_update2.stdout }}'"

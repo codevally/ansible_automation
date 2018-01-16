@@ -1,0 +1,104 @@
+---
+
+- name: Install required packages
+  become: yes
+  yum:
+    name={{ item }} state=present
+  with_items:
+    "{{ lvm_packages }}"
+
+- debug: msg={{ result_swap }}
+
+- name: Create partition on block storage swap volume
+  become: yes
+  shell: echo -e "o\nn\np\n1\n\n\nt\n8e\nw" | fdisk /dev/{{ result_swap.stdout }}
+  when: result_swap is defined and result_swap.stdout != ""
+
+- name: Create partition on block storage log volume
+  become: yes
+  shell: echo -e "o\nn\np\n1\n\n\nt\n8e\nw" | fdisk /dev/{{ result_log.stdout }}
+  when: result_log is defined and result_log.stdout != ""
+
+- name: vgcreate for swap partition
+  become: yes
+  lvg:
+    vg: vg_swap
+    pvs: /dev/{{ result_swap.stdout }}1
+
+- name: Create logical volume for swap partition
+  become: yes
+  lvol:
+    vg: vg_swap
+    lv: lvol_swap0
+    size: 100%FREE
+
+- name: Make swap
+  become: yes
+  command: mkswap -f  /dev/vg_swap/lvol_swap0
+
+- name: Add swap to fstab
+  become: yes
+  mount:
+    name: swap
+    src: "/dev/vg_swap/lvol_swap0"
+    fstype: swap
+    state: present
+    opts: "defaults"
+    dump: "0"
+    passno: "0"
+
+- name: Switch on swap
+  command: swapon -va
+  become: yes
+
+- name: vgcreate for log partition
+  lvg:
+    vg: vg_log
+    pvs: /dev/{{ result_log.stdout }}1
+
+- name: Create logical volume for log partition
+  lvol:
+    vg: vg_log
+    lv: lvol_log0
+    size: 100%FREE
+
+- name: Create filesystem on the first partition
+  filesystem:
+    dev: /dev/vg_log/lvol_log0
+    force: yes
+    fstype: xfs
+
+- name: Move /var/log to a temporary location
+  become: yes
+  command: mv /var/log /var/log1
+
+- name: Create new /var/log folder
+  become: yes
+  file:
+    path: /var/log
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Mount logs block storage volume
+  become: yes
+  mount:
+    name: /var/log
+    src: /dev/vg_log/lvol_log0
+    path: /var/log
+    fstype: xfs
+    state: mounted
+    opts: "defaults"
+    dump: "0"
+    passno: "0"
+
+- name: Copy contents from /var/log1 to /var/log
+  become: yes
+  command: mv /var/log1/* /var/log/
+
+- name: Delete /var/log1 folder
+  become: yes
+  file:
+    path: /var/log1
+    state: absent

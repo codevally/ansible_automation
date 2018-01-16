@@ -1,0 +1,47 @@
+---
+
+- name: Install sudo package
+  yum:
+    name: sudo
+    state: present
+  tags:
+    - sudoers
+
+- name: Create sudoers.d directory
+  file:
+    path: /etc/sudoers.d
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+  tags:
+    - sudoers
+
+- name: Set includedir in sudoers
+  lineinfile:
+    dest: /etc/sudoers
+    line: "#includedir /etc/sudoers.d"
+    state: present
+    validate: "/usr/sbin/visudo -cf %s"
+  tags:
+    - sudoers
+
+#- debug:
+#    msg: "{{ item.become }}"
+#  when: item.become is defined
+#  with_items:
+#    - "{{ prod_sudoers | default([]) }}"
+
+- name: Create sudoers
+  template:
+    src: sudoers.d.j2
+    dest: "/etc/sudoers.d/{{ item.username }}"
+    mode: 0440
+    owner: root
+    group: root
+    backup: no
+    validate: "/usr/sbin/visudo -cf %s"
+  with_items:
+    - "{{ prod_sudoers | default([]) }}"
+  tags:
+    - sudoers

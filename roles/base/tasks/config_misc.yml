@@ -1,0 +1,12 @@
+---
+
+- name: Create the process file for Zabbix
+  file:
+    path: /etc/path/processes
+    state: touch
+
+
+- name: Create the services file for Zabbix
+  file:
+    path: /etc/path/services
+    state: touch

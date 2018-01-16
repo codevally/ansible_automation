@@ -1,0 +1,39 @@
+---
+# vars file for rabbitmq
+
+rabbitmq_user: jboss
+rabbitmq_user_id: 503
+
+rabbitmq_group: jboss
+rabbitmq_group_id: 503
+
+base_packages: ["gcc","glibc-devel","make","ncurses-devel","openssl-devel"]
+
+erlang_version: "R15B"
+
+erlang_path: "/app/erlang/bin"
+
+rabbitmq_version: "2.8.7"
+
+rabbit_mount_path: "/data"
+
+rabbit_mount_size: "30G"
+
+rabbitmq_memory_high_watermark: "0.7"
+
+rabbitmq_erlang_cookie: "ansiblerabbitclusterdevops"
+
+rabbitmq_plugins:
+  - rabbitmq_management
+
+rabbitmq_users_removed:
+  - guest
+
+rabbitmq_users:
+  - user: admin
+    password: admin
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    tags: administrator

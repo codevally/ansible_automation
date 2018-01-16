@@ -1,0 +1,8 @@
+---
+
+- name: Initial RabbitMQ process start
+  become: yes
+  shell: /app/rabbitmq/rabbitmq.sh start
+  tags:
+    - rabbitmq
+

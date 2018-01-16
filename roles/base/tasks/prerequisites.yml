@@ -1,0 +1,67 @@
+---
+
+#- name: Identify the Operating system
+#  register: os_distribution={{ ansible_os_family }}
+#  when: ansible_distribution == "CentOS" and ansible_distribution_major_version > '6'
+
+- name: Check for supported operating system on target
+  fail:
+    msg: "The operating system of the target machine ({{ inventory_hostname }}) is not currently supported."
+  when:
+    - ansible_architecture != "x86_64"
+    - ansible_distribution != "RedHat"
+    - ansible_distribution_major_version|int <6
+  tags:
+    - configuration
+    - base
+
+- name: Has base role executed already?
+  become: yes
+  stat:
+    path: /etc/ansible/facts.d/system_status.fact
+  register: custom_facts_path
+
+- fail:
+    msg: "The base role has been already applied"
+  when:
+    - custom_facts_path.stat.exists
+    - ansible_local.system_status.update_state == "updated"
+  tags:
+    - configuration
+    - base
+
+- name: Prerequisites for provisioning
+  become: yes
+  debug: msg="Pre-requisites for provisioning" 
+
+- name: Find 20GB drive for root is attached
+  become: yes 
+  shell: /bin/lsblk | /bin/grep 20G | /bin/awk '{print $1}' | /usr/bin/head -n 1
+  register: result_root
+
+- name: Find 4GB drive for swap is attached
+  become: yes
+  shell: /bin/lsblk | /bin/grep 4G | /bin/awk '{print $1}' | /usr/bin/head -n 1
+  register: result_swap
+
+- name: Find 10GB drive for log is attached
+  become: yes 
+  shell: /bin/lsblk | /bin/grep 10G | /bin/awk '{print $1}' | /usr/bin/head -n 1
+  register: result_log  	
+
+- name: Setting fact about lvm
+  set_fact:
+    swap_partition: "{{ result_swap }}"
+    log_partion: "{{ result_log }}"
+    root_partition: "{{ result_root }}"
+  when:
+    - result_root.stdout == "" or result_swap.stdout == "" or result_log.stdout == ""
+
+- fail:
+    msg: "The system may not be provisioned according to the Whispir standards."
+  when: 
+    - result_root.stdout == "" or result_swap.stdout == "" or result_log.stdout == "" 
+
+  tags:
+    - configuration
+    - base

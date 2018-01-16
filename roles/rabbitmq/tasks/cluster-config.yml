@@ -1,0 +1,48 @@
+---
+# Configure RabbitMQ for cluster
+
+- name: Add the cluster participants to the host file
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ hostvars[item]['ansible_hostname'] }}"
+  with_items: "{{ groups['rabbit'] }}"
+  tags:
+    - rabbitmq
+
+- name: Backup the existing erlang cookie file
+  shell: cp -a /home/{{ rabbitmq_user }}/.erlang.cookie /home/{{ rabbitmq_user }}/.erlang.cookie.old
+  changed_when: false
+  tags:
+    - rabbitmq
+
+- name: Check if erlang cookie changed, then stopping server
+  template:
+    src: erlang.cookie.j2
+    dest: /home/{{ rabbitmq_user }}/.erlang.cookie.old
+    owner: "{{ rabbitmq_user }}"
+    group: "{{ rabbitmq_user }}"
+    mode: 0400
+  notify:
+    stop stop-rabbitmq
+  tags:
+    - rabbitmq
+
+- meta: flush_handlers
+
+- name: Updating the new erlang cookie
+  template:
+    src: erlang.cookie.j2
+    dest: /home/{{ rabbitmq_user }}/.erlang.cookie
+    owner: "{{ rabbitmq_user }}"
+    group: "{{ rabbitmq_user }}"
+    mode: 0400
+  tags:
+    - rabbitmq
+
+- name: Remove the old erlang cookie
+  file:
+    path: /home/{{ rabbitmq_user }}/.erlang.cookie.old
+    state: absent
+  changed_when: false
+  tags:
+    - rabbitmq

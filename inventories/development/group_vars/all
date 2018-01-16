@@ -1,0 +1,5 @@
+---
+
+# List all basic required packages here
+BASE_PACKAGES: ['vim', 'telnet', 'mlocate', 'bind-utils', 'bzip2']
+
